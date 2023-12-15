@@ -1,40 +1,12 @@
-class Archive(private var name: String) {
-    private val notes = mutableListOf<Note>()
-
-    fun getName(): String {
-        return name
-    }
+class Archive(var name: String) {
+    val notes = mutableListOf<Note>()
 
     fun addNote(name: String, content: String) {
-        put(Note(name, content))
-    }
-
-    private fun put(note: Note) {
-        notes.add(note)
-    }
-
-    fun getNotes(): MutableList<Note> {
-        return notes
-    }
-
-    override fun toString(): String {
-        return name
+        notes.add(Note(name, content))
     }
 }
 
-class Note(private var name: String, private val content: String) {
-    fun getContent(): String {
-        return content
-    }
-
-    fun getName(): String {
-        return name
-    }
-
-    override fun toString(): String {
-        return name
-    }
-}
+data class Note(val name: String, val content: String)
 
 object Store {
     val archives = mutableListOf<Archive>()
@@ -48,10 +20,10 @@ object Store {
     }
 
     fun getNotes(archive: Archive): MutableList<Note> {
-        return archive.getNotes()
+        return archive.notes
     }
 
     fun getArchiveByNote(note: Note): Archive {
-        return archives.find { it.getNotes().contains(note) }!!
+        return archives.find { it.notes.contains(note) }!!
     }
 }

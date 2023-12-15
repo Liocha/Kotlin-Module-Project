@@ -6,11 +6,11 @@ class Menu {
 
     fun handlerState(state: State) {
         when (state) {
-            is SelectArchive -> {
+            is State.SelectArchive -> {
                 buildArchiveMenu(state.store)
             }
 
-            is SelectNote -> {
+            is State.SelectNote -> {
                 buildNotesMenu(state.store, state.archive)
             }
 
@@ -19,29 +19,29 @@ class Menu {
     }
 
     private fun buildArchiveMenu(store: Store) {
-        menu.add(MenuItem("Создать архив", CreateArchive(store, Menu())))
+        menu.add(MenuItem("Создать архив", State.CreateArchive(store, Menu())))
         store.archives.forEach { element ->
             menu.add(
                 MenuItem(
-                    element.toString(),
-                    SelectNote(store, Menu(), element)
+                    element.name,
+                    State.SelectNote(store, Menu(), element)
                 )
             )
         }
-        menu.add(MenuItem("Выйти", Exit(store, Menu())))
+        menu.add(MenuItem("Выйти", State.Exit(store, Menu())))
     }
 
     private fun buildNotesMenu(store: Store, archive: Archive) {
-        menu.add(MenuItem("Создать заметку", CreateNote(store, Menu(), archive)))
+        menu.add(MenuItem("Создать заметку", State.CreateNote(store, Menu(), archive)))
         store.getNotes(archive).forEach { element ->
             menu.add(
                 MenuItem(
-                    element.getName(),
-                    ShowNote(store, Menu(), element)
+                    element.name,
+                    State.ShowNote(store, Menu(), element)
                 )
             )
         }
-        menu.add(MenuItem("Назад", SelectArchive(store, Menu())))
+        menu.add(MenuItem("Назад", State.SelectArchive(store, Menu())))
     }
 
     fun getMenu(): MutableList<MenuItem> {

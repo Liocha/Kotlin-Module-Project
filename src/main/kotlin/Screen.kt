@@ -1,35 +1,33 @@
-import java.util.Scanner
-
 class Screen {
     fun render(state: State): State {
         return when (state) {
-            is SelectArchive -> {
+            is State.SelectArchive -> {
                 selectArchive(state)
             }
 
-            is CreateArchive -> {
+            is State.CreateArchive -> {
                 createArchive(state)
             }
 
-            is SelectNote -> {
+            is State.SelectNote -> {
                 selectNote(state)
             }
 
-            is CreateNote -> {
+            is State.CreateNote -> {
                 createNote(state)
             }
 
-            is ShowNote -> {
+            is State.ShowNote -> {
                 showNote(state)
             }
 
-            is Exit -> {
+            is State.Exit -> {
                 showExit(state)
             }
         }
     }
 
-    private fun selectArchive(state: SelectArchive): State {
+    private fun selectArchive(state: State.SelectArchive): State {
         println(state.message)
         state.menu.handlerState(state)
         menuRender(state.menu.getMenu())
@@ -37,37 +35,38 @@ class Screen {
         return state.menu.select(commandCode)
     }
 
-    private fun createArchive(state: CreateArchive): State {
+    private fun createArchive(state: State.CreateArchive): State {
         println(state.message)
         val archiveName = getNonEmptyUserInput()
         state.store.addArchive(archiveName)
-        return SelectArchive(state.store, Menu())
+        return State.SelectArchive(state.store, Menu())
     }
 
-    private fun selectNote(state: SelectNote): State {
-        println(state.message(state.archive.getName()))
+    private fun selectNote(state: State.SelectNote): State {
+        println(state.message(state.archive.name))
         state.menu.handlerState(state)
         menuRender(state.menu.getMenu())
         val commandCode = getMenuSelection(state.menu)
         return state.menu.select(commandCode)
     }
 
-    private fun createNote(state: CreateNote): State {
+    private fun createNote(state: State.CreateNote): State {
         println(state.nameCreationMessage)
         val noteName = getNonEmptyUserInput()
         println(state.contentCreationMessage)
         val noteContent = getNonEmptyUserInput()
         state.store.addNote(state.archive, noteName, noteContent)
-        return SelectNote(state.store, Menu(), state.archive)
+        return State.SelectNote(state.store, Menu(), state.archive)
     }
 
-    private fun showNote(state: ShowNote): State {
-        println(state.message(state.note.getName()))
-        println(state.note.getContent())
-        return SelectNote(state.store, Menu(), state.store.getArchiveByNote(state.note))
+    private fun showNote(state: State.ShowNote): State {
+        val (name, content) = state.note
+        println(state.message(name))
+        println(content)
+        return State.SelectNote(state.store, Menu(), state.store.getArchiveByNote(state.note))
     }
 
-    private fun showExit(state: Exit): State {
+    private fun showExit(state: State.Exit): State {
         println(state.message)
         return state
     }
@@ -79,19 +78,19 @@ class Screen {
     }
 
     private fun getMenuSelection(menu: Menu): Int {
-        var commandCode = Scanner(System.`in`).nextLine()
+        var commandCode = readln()
         while (menu.validate(commandCode)) {
             println(menu.getError())
-            commandCode = Scanner(System.`in`).nextLine()
+            commandCode = readln()
         }
         return commandCode.toInt()
     }
 
     private fun getNonEmptyUserInput(): String {
-        var userInput = Scanner(System.`in`).nextLine()
-        while (userInput.isEmpty()) {
+        var userInput = readln()
+        while (userInput.trim().isEmpty()) {
             println("Ввод не может быть пустой строкой, повторите попытку!")
-            userInput = Scanner(System.`in`).nextLine()
+            userInput = readln()
         }
         return userInput
     }
